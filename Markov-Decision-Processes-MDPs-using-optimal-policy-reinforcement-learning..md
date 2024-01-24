@@ -1,39 +1,50 @@
----
-title: "Markov-Decision-Processes-MDPs"
-subtitle: "Optimal policy reinforcement learning"
-author: "Joshua Edefo"
-email: "edefojoshua2000@yahoo.com"
-date: "2024-01-24"
-output: github_document
----
-Brief description of the Markov Decision Processes (MDPs) 
-Treatment planining for those who are sufferring from depression
+Markov-Decision-Processes-MDPs
+================
+Joshua Edefo
+2024-01-24
 
-MDP means when an agent interacts with an environment, it takes actions that affects states of the environment. there is a limited feedback which is the reward signal that tells how well agent is perfoemorming. the goal is to improve behaviour given only this limitef=d feedback
+Brief description of the Markov Decision Processes (MDPs) Treatment
+planining for those who are sufferring from depression
 
-Applicationin the heakthcare sysstem, the agent could be the health professional, environment the patients, states means the various disease stages, reward may be the benefit
+MDP means when an agent interacts with an environment, it takes actions
+that affects states of the environment. there is a limited feedback
+which is the reward signal that tells how well agent is perfoemorming.
+the goal is to improve behaviour given only this limitef=d feedback
 
-So lets' narrow it down to people suffering from depression
+Applicationin the heakthcare sysstem, the agent could be the health
+professional, environment the patients, states means the various disease
+stages, reward may be the benefit
+
+So lets’ narrow it down to people suffering from depression
 
 States are 1) depressed, 2) borderline and 3)depression free
 
-Model will be that the patient will transit in the order of depressed - borderline - depression free with a probability of relapse  into any state
+Model will be that the patient will transit in the order of depressed -
+borderline - depression free with a probability of relapse into any
+state
 
-Actions are the different plans that affect the disease states, these are 1)antidepressant, 2) psychotherapy and 3) combination of antidepressant and psychotherapy
+Actions are the different plans that affect the disease states, these
+are 1)antidepressant, 2) psychotherapy and 3) combination of
+antidepressant and psychotherapy
 
-
-Rewards will based on quality of life(qol) each action will give, this will be 1) low qol 2) medium qol 3) high qol
-
+Rewards will based on quality of life(qol) each action will give, this
+will be 1) low qol 2) medium qol 3) high qol
 
 Load library
 
-```{r setup, message=FALSE}
+``` r
 library(MDPtoolbox)
 ```
 
+    ## Warning: package 'MDPtoolbox' was built under R version 4.3.2
+
+    ## Warning: package 'linprog' was built under R version 4.3.2
+
+    ## Warning: package 'lpSolve' was built under R version 4.3.2
+
 Lets begin
 
-```{r b}
+``` r
 # Consider first action which is using antidepressant
 
 # name of states
@@ -96,16 +107,18 @@ Reward_mat<-matrix(c(1,  1,  1,
 # Check if this provides a well- define MDP, empty string meand ok
 
 mdp_check(Aggregate_mat,Reward_mat)
-
 ```
+
+    ## [1] ""
 
 Run policy iteration with discount 0.7
 
-Discount factor in MDP is a paramer that determines how much the agent values the future rewards, its ranges from 0 to 1, a low values means care more about current while a high value suggests the agent care much about long-term consequences
+Discount factor in MDP is a paramer that determines how much the agent
+values the future rewards, its ranges from 0 to 1, a low values means
+care more about current while a high value suggests the agent care much
+about long-term consequences
 
-```{r c}
-
-
+``` r
 Treament_plan <- mdp_policy_iteration(P = Aggregate_mat,
                                       R = Reward_mat,
                                       discount = 0.7)
@@ -113,9 +126,19 @@ Treament_plan <- mdp_policy_iteration(P = Aggregate_mat,
 # Display optimal policy
 
 Treament_plan $policy
+```
+
+    ## [1] 3 1 3
+
+``` r
 #[1] 3 1 3
 
 names(Aggregate_mat)[Treament_plan $policy]
+```
+
+    ## [1] "Antide_and_Psycho" "Antidepressant"    "Antide_and_Psycho"
+
+``` r
 #[1] "Antide_and_Psycho" "Antidepressant"    "Antide_and_Psycho"
 
 # if we begin the treatment of patient at depressed state the optimal therapy 
@@ -125,12 +148,46 @@ names(Aggregate_mat)[Treament_plan $policy]
 
 # We can also display the value  function
 Treament_plan$V
+```
+
+    ## [1] 20.53629 23.74226 30.39923
+
+``` r
 ## [1] 20.53629 23.74226 30.39923
 # it shows us the value of following this policy as we move from state to state
-
 ```
 
 Session information
-```{r d}
+
+``` r
 sessionInfo()
 ```
+
+    ## R version 4.3.1 (2023-06-16 ucrt)
+    ## Platform: x86_64-w64-mingw32/x64 (64-bit)
+    ## Running under: Windows 11 x64 (build 22631)
+    ## 
+    ## Matrix products: default
+    ## 
+    ## 
+    ## locale:
+    ## [1] LC_COLLATE=English_United Kingdom.utf8 
+    ## [2] LC_CTYPE=English_United Kingdom.utf8   
+    ## [3] LC_MONETARY=English_United Kingdom.utf8
+    ## [4] LC_NUMERIC=C                           
+    ## [5] LC_TIME=English_United Kingdom.utf8    
+    ## 
+    ## time zone: Europe/London
+    ## tzcode source: internal
+    ## 
+    ## attached base packages:
+    ## [1] stats     graphics  grDevices utils     datasets  methods   base     
+    ## 
+    ## other attached packages:
+    ## [1] MDPtoolbox_4.0.3 linprog_0.9-4    lpSolve_5.6.20   Matrix_1.6-1.1  
+    ## 
+    ## loaded via a namespace (and not attached):
+    ##  [1] digest_0.6.33     fastmap_1.1.1     xfun_0.40         lattice_0.21-8   
+    ##  [5] knitr_1.44        htmltools_0.5.6   rmarkdown_2.25    cli_3.6.1        
+    ##  [9] grid_4.3.1        compiler_4.3.1    rstudioapi_0.15.0 tools_4.3.1      
+    ## [13] evaluate_0.21     yaml_2.3.7        rlang_1.1.1
