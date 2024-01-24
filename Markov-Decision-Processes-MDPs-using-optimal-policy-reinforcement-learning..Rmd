@@ -1,0 +1,136 @@
+---
+title: "Markov-Decision-Processes-MDPs"
+subtitle: "Optimal policy reinforcement learning"
+author: "Joshua Edefo"
+email: "edefojoshua2000@yahoo.com"
+date: "2024-01-24"
+output: html_document
+---
+Brief description of the Markov Decision Processes (MDPs) 
+Treatment planining for those who are sufferring from depression
+
+MDP means when an agent interacts with an environment, it takes actions that affects states of the environment. there is a limited feedback which is the reward signal that tells how well agent is perfoemorming. the goal is to improve behaviour given only this limitef=d feedback
+
+Applicationin the heakthcare sysstem, the agent could be the health professional, environment the patients, states means the various disease stages, reward may be the benefit
+
+So lets' narrow it down to people suffering from depression
+
+States are 1) depressed, 2) borderline and 3)depression free
+
+Model will be that the patient will transit in the order of depressed - borderline - depression free with a probability of relapse  into any state
+
+Actions are the different plans that affect the disease states, these are 1)antidepressant, 2) psychotherapy and 3) combination of antidepressant and psychotherapy
+
+
+Rewards will based on quality of life(qol) each action will give, this will be 1) low qol 2) medium qol 3) high qol
+
+
+Load library
+
+```{r setup, message=FALSE}
+library(MDPtoolbox)
+```
+
+Lets begin
+
+```{r b}
+# Consider first action which is using antidepressant
+
+# name of states
+
+state_names<-c("depressed", "borderline", "depression_free")
+
+# probability matrix as action after states
+
+Antidepressant<-matrix(c(0.1, 0.3, 0.6, 
+                         0.3, 0.1, 0.6, 
+                         0.1, 0.1, 0.8),
+            nrow = 3, ncol =3, byrow=TRUE, 
+            dimnames = list(from = state_names, to = state_names ))
+
+
+
+# scecond action psychotherapy
+state_names<-c("depressed", "borderline", "depression_free")
+
+# probability matrix as action after states
+
+state_names<-c("depressed", "borderline", "depression_free")
+
+Psychotherapy<-matrix(c(0.2, 0.3, 0.5, 
+                        0.4, 0.2, 0.4, 
+                        0.2, 0.2, 0.6),
+                       nrow = 3, ncol =3, byrow=TRUE, 
+                       dimnames = list(from = state_names, to = state_names ))
+
+
+# Third action which is combination of antisepressant and psychotherapy
+state_names<-c("depressed", "borderline", "depression_free")
+
+Antide_and_Psycho<-matrix(c(0.05, 0.3, 0.65, 
+                          0.3, 0.1, 0.6, 
+                          0.06, 0.1, 0.84),
+                      nrow = 3, ncol =3, byrow=TRUE, 
+                      dimnames = list(from = state_names, to = state_names ))
+
+
+# Aggregate previous matrices to create transition  probabilities into list Aggregate_mat
+Aggregate_mat <-list(Antidepressant = Antidepressant, 
+                 Psychotherapy = Psychotherapy,
+                 Antide_and_Psycho = Antide_and_Psycho)
+
+
+# create matrix with rewards
+
+rewards_names<-c("low quality", "medium quality", "high quality")
+
+Reward_mat<-matrix(c(1,  1,  1, 
+                     5,  5,  5, 
+                     10, 10, 10),
+                      nrow = 3, ncol =3, byrow=TRUE, 
+                      dimnames = list(from = rewards_names, to = rewards_names ))
+# this mean if enter from depressed state you will have low quality of life which reward is 1
+# enter from borderline line you  will have a reward of 5 which is medium quality of life
+# enter from depresion free state you will get a reward of 10 which is high qol
+
+# Check if this provides a well- define MDP, empty string meand ok
+
+mdp_check(Aggregate_mat,Reward_mat)
+
+```
+
+Run policy iteration with discount 0.7
+
+Discount factor in MDP is a paramer that determines how much the agent values the future rewards, its ranges from 0 to 1, a low values means care more about current while a high value suggests the agent care much about long-term consequences
+
+```{r c}
+
+
+Treament_plan <- mdp_policy_iteration(P = Aggregate_mat,
+                                      R = Reward_mat,
+                                      discount = 0.7)
+# Treatment policy
+# Display optimal policy
+
+Treament_plan $policy
+#[1] 3 1 3
+
+names(Aggregate_mat)[Treament_plan $policy]
+#[1] "Antide_and_Psycho" "Antidepressant"    "Antide_and_Psycho"
+
+# if we begin the treatment of patient at depressed state the optimal therapy 
+# is combination of antidepressant and psychotherapy but if we begin the treatment at borderline state 
+# the optimal treatment is antidepressant and if we begin at depression free the the optimal therapy is 
+# combination therapy
+
+# We can also display the value  function
+Treament_plan$V
+## [1] 20.53629 23.74226 30.39923
+# it shows us the value of following this policy as we move from state to state
+
+```
+
+Session information
+```{r d}
+sessionInfo()
+```
